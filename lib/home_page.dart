@@ -1,23 +1,27 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:v_assistant/feature_box.dart';
+import 'package:v_assistant/openai_service.dart';
 import 'package:v_assistant/pallette.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
-String lastWords = "";
-
 class _HomePageState extends State<HomePage> {
   final speechToText = SpeechToText();
+  String lastWords = '';
+  final OpenAIService openAIService = OpenAIService();
 
+  @override
   @override
   void initState() {
     super.initState();
@@ -144,10 +148,14 @@ class _HomePageState extends State<HomePage> {
         onPressed: () async {
           if (await speechToText.hasPermission && speechToText.isNotListening) {
             await startListening();
+            log("listeing");
           } else if (speechToText.isListening) {
+            await openAIService.isArtPromptAPI(lastWords);
             await stopListening();
+            log("stopped");
           } else {
             initSpeechToText();
+            log("to text");
           }
         },
         child: const Icon(Icons.mic),
